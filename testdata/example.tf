@@ -1,12 +1,35 @@
-// copy from https://learn.hashicorp.com/terraform/getting-started/build.html
-
-provider "aws" {
-  access_key = "ACCESS_KEY_HERE"
-  secret_key = "SECRET_KEY_HERE"
-  region     = "us-east-1"
+provider "google" {
+  region  = "asia-northeast1"
 }
 
-resource "aws_instance" "example" {
-  ami           = "ami-2757f631"
-  instance_type = "t2.micro"
+resource "google_compute_instance" "test-instance-1" {
+  name         = "test-instance-2"
+  machine_type = "n1-standard-1"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-9"
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+}
+
+resource "google_compute_instance" "test-instance-20" {
+  name         = "test-instance"
+  machine_type = "n1-standard-2"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-9"
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
 }

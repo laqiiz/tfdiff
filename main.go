@@ -9,6 +9,11 @@ https://nathanleclaire.com/blog/2014/12/29/shelled-out-commands-in-golang/
 
 - Integration with terraform go-SDK
   https://stackoverflow.com/questions/46932679/integration-with-terraform-go-sdk
+
+- Add JSON Output Format to terraform plan
+  > We do intend to make machine-readable plan output eventually, but we are intentionally postponing this for now since we don't feel ready to commit to a stable JSON format for plans.
+  https://github.com/hashicorp/terraform/issues/11883#issuecomment-303474598
+
 */
 
 import (
@@ -17,6 +22,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+
+	"github.com/laqiiz/tfdiff/tfplan"
 )
 
 func main() {
@@ -39,7 +46,6 @@ func main() {
 	log.Print("install check finished")
 
 	// terraform init
-	// TODO skip option?
 	initOut, err := exec.Command("terraform", "init").CombinedOutput()
 	if err != nil {
 		log.Println(string(initOut))
@@ -58,11 +64,21 @@ func main() {
 	log.Print("validate finished")
 
 	// terraform is valid format after validation
-	planOut, err := exec.Command("terraform", "plan").CombinedOutput()
+	planOut, err := exec.Command("terraform", "plan", "-no-color").CombinedOutput()
 	if err != nil {
 		log.Println(string(planOut))
 		log.Fatal(err)
 	}
-	log.Println(string(planOut))
+	//log.Println(string(planOut))
+	log.Print("terraform plan finished")
+
+	diffs, err := tfplan.NewParser().Do(planOut)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, diff := range diffs {
+		log.Printf("%+v\n", diff)
+	}
 
 }
